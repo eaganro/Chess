@@ -108,6 +108,7 @@ class Board extends React.Component{
       newBoard[sy][sx] = 0;
       moves.push([y,x,newBoard[y][x]], [sy,sx,0]);
     }
+    console.log('plzzzzzzzz');
     //console.log(this.checkCheck(newBoard));
     if(this.checkCheck(newBoard) === 0){
       axios.post('/makeMove', {
@@ -387,14 +388,16 @@ class Board extends React.Component{
     //console.log(moveList);
     if(this.state.turn === 1){
       if(moveList.includes(white)){
+        console.log('white');
         return 1;
       }
     } else {
       if(moveList.includes(black)){
+        console.log('black');
         return 1;
       }
     }
-    //console.log('down here');
+    console.log('none');
     return 0;
   }
 

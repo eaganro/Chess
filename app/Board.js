@@ -2,6 +2,8 @@ import React from 'react';
 import BoardRow from './BoardRow.js';
 import axios from 'axios';
 
+import { calculateMoves, checkCheck } from './boardHelpers';
+
 
 class Board extends React.Component{
   constructor(props){
@@ -24,7 +26,7 @@ class Board extends React.Component{
       castleL: 1,
       castleBR: 1,
       castleBL: 1,
-      turn: 1,
+      turn: 0,
       check: 0,
     }
     this.update();
@@ -39,26 +41,37 @@ class Board extends React.Component{
         var board = res.data.board
         if(this.props.color === 1){
           var newBoard = [];
-          board.forEach((x)=> newBoard.push(x.slice()));
-          newBoard.reverse();
-          newBoard = newBoard.map((row) => row.reverse());
-          newBoard = newBoard.map((row) => row.map((tile) => {
-            if(Math.floor(tile/10) === 1){
-              return tile + 10;
-            } else if(Math.floor(tile/10) === 2){
-              return tile - 10;
+          for(var i = 0; i < board.length; i++){
+            newBoard.push([]);
+            for(var j = 0; j < board[0].length; j++){
+              newBoard[i].push(0);
             }
-            return tile;
-          }))
-          board = newBoard;
-          console.log('flipadelphia')
+          }
+          for(var i = 0; i < board.length; i++){
+            for(var j = 0; j < board[i].length; j++){
+              newBoard[j][board.length - 1 -i] = board[i][j];
+            }
+          }
+
+          var newBoard2 = [];
+          for(var i = 0; i < newBoard.length; i++){
+            newBoard2.push([]);
+            for(var j = 0; j < newBoard[0].length; j++){
+              newBoard2[i].push(0);
+            }
+          }
+          for(var i = 0; i < newBoard.length; i++){
+            for(var j = 0; j < newBoard[i].length; j++){
+              newBoard2[j][newBoard.length - 1 -i] = newBoard[i][j];
+            }
+          }
+          board = newBoard2;
         }
         that.setState({
           board: board,
           turn: res.data.turn
         })
       });
-      console.log(this.state);
     }, 2000);
   }
 
@@ -108,9 +121,7 @@ class Board extends React.Component{
       newBoard[sy][sx] = 0;
       moves.push([y,x,newBoard[y][x]], [sy,sx,0]);
     }
-    console.log('plzzzzzzzz');
-    //console.log(this.checkCheck(newBoard));
-    if(this.checkCheck(newBoard) === 0){
+    if(checkCheck.call(this, newBoard) === 0){
       axios.post('/makeMove', {
         game: this.props.game,
         color: this.props.color,
@@ -122,7 +133,7 @@ class Board extends React.Component{
         board: newBoard,
         selected: -1,
         moves: [],
-        turn: this.state.turn === 1 ? 2 : 1,
+        turn: this.state.turn === 0 ? 1 : 0,
       })
       if(board[7][0] !== 14|| board[7][4] !== 16){
         this.setState({
@@ -148,262 +159,27 @@ class Board extends React.Component{
     }
   }
 
-  calculateMoves(y,x,cb,board){
-    if(!board){
-      board = this.state.board;
-    }
-    var list = [];
-    var piece = board[y][x];
-    if(piece === 11){
-      if(board[y-1][x] === 0){
-        list.push(String(y-1)+x);
-        if(y === 6 && board[y-2][x] === 0){
-          list.push(String(y-2)+x);
-        }
-      }
-      if(board[y-1] && board[y-1][x-1] !== 0 && Math.floor(board[y-1][x-1]/10) !== Math.floor(piece/10)){
-        list.push(String(y-1) + (x-1));
-      }
-      if(board[y-1] && board[y-1][x+1] !== 0 && Math.floor(board[y-1][x+1]/10) !== Math.floor(piece/10)){
-        list.push(String(y-1) + (x+1));
-      }
-    } else if(piece === 21){
-      if(board[y+1][x] === 0){
-        list.push(String(y+1)+x);
-        if(y === 1 && board[y+2][x] === 0){
-          list.push(String(y+2)+x);
-        }
-      }
-      if(board[y+1] && board[y+1][x-1] !== 0 && Math.floor(board[y+1][x-1]/10) !== Math.floor(piece/10)){
-        list.push(String(y+1) + (x-1));
-      }
-      if(board[y+1] && board[y+1][x+1] !== 0 && Math.floor(board[y+1][x+1]/10) !== Math.floor(piece/10)){
-        list.push(String(y+1) + (x+1));
-      }
-    } else if(piece === 13 || piece === 23){
-      if(board[y-2] && (board[y-2][x-1] === 0 || Math.floor(board[y-2][x-1]/10) !== Math.floor(piece/10))){
-        list.push(String(y-2)+(x-1));
-      }
-      if(board[y-2] && (board[y-2][x+1] === 0 || Math.floor(board[y-2][x+1]/10) !== Math.floor(piece/10))){
-        list.push(String(y-2)+(x+1));
-      }
-      if(board[y-1] && (board[y-1][x+2] === 0 || Math.floor(board[y-1][x+2]/10) !== Math.floor(piece/10))){
-        list.push(String(y-1)+(x+2));
-      }
-      if(board[y-1] && (board[y-1][x-2] === 0 || Math.floor(board[y-1][x-2]/10) !== Math.floor(piece/10))){
-        list.push(String(y-1)+(x-2));
-      }
-
-      if(board[y+2] && (board[y+2][x-1] === 0 || Math.floor(board[y+2][x-1]/10) !== Math.floor(piece/10))){
-        list.push(String(y+2)+(x-1));
-      }
-      if(board[y+2] && (board[y+2][x+1] === 0 || Math.floor(board[y+2][x+1]/10) !== Math.floor(piece/10))){
-        list.push(String(y+2)+(x+1));
-      }
-      if(board[y+1] && (board[y+1][x-2] === 0 || Math.floor(board[y+1][x-2]/10) !== Math.floor(piece/10))){
-        list.push(String(y+1)+(x-2));
-      }
-      if(board[y+1] && (board[y+1][x+2] === 0 || Math.floor(board[y+1][x+2]/10) !== Math.floor(piece/10))){
-        list.push(String(y+1)+(x+2));
-      }
-    } else if(piece === 12 || piece === 15 || piece === 22 || piece === 25){
-      var i, j;
-      for(i = y+1, j = x+1; i < 8, j < 8; i++, j++){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = 8;
-          }
-        } else{
-          i = 8;
-        }
-      }
-
-      for(i = y+1, j = x-1; i < 8, j >= 0; i++, j--){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = 8;
-          }
-        } else{
-          i = 8;
-        }
-      }
-
-      for(i = y-1, j = x+1; i >= 0, j < 8; i--, j++){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            j = 8;
-          }
-        } else{
-          j = 8;
-        }
-      }
-
-      for(i = y-1, j = x-1; i >= 0, j >= 0; i--, j--){
-        if(board[i] && (board[i][j] === 0 ||Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = -1;
-          }
-        } else{
-          i = -1;
-        }
-      }
-    }
-    if(piece === 14 || piece === 15 || piece === 24 || piece === 25){
-      var i = y
-      var j = x;
-      for(i = y+1; i < 8; i++){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = 8;
-          }
-        } else{
-          i = 8;
-        }
-      } 
-      j = x;
-      for(i = y-1; i >= 0; i--){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = -1;
-          }
-        } else{
-          i = -1;
-        }
-      }
-      i = y;
-      for(j = x+1; j < 8; j++){
-        if(board[i] && (board[i][j] === 0 || Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            j = 8;
-          }
-        } else{
-          j = 8;
-        }
-      }
-      i = y;
-      for(j = x-1; j >= 0; j--){
-        if(board[i] && (board[i][j] === 0 ||Math.floor(board[i][j]/10) !== Math.floor(piece/10))){
-          list.push(String(i) + j);
-          if(board[i][j] !== 0 && Math.floor(board[i][j]/10) !== Math.floor(piece/10)){
-            i = -1;
-          }
-        } else{
-          i = -1;
-        }
-      }
-    } else if(piece === 16 || piece === 26){
-      if(board[y+1] && (board[y+1][x] === 0 || Math.floor(board[y+1][x]/10) !== Math.floor(piece/10))){
-        list.push(String(y+1)+(x));
-      }
-      if(board[y+1] && (board[y+1][x+1] === 0 || Math.floor(board[y+1][x+1]/10) !== Math.floor(piece/10))){
-        list.push(String(y+1)+(x+1));
-      }
-      if(board[y+1] && (board[y+1][x-1] === 0 || Math.floor(board[y+1][x-1]/10) !== Math.floor(piece/10))){
-        list.push(String(y+1)+(x-1));
-      }
-      if(board[y][x+1] === 0 || Math.floor(board[y][x+1]/10) !== Math.floor(piece/10)){
-        list.push(String(y)+(x+1));
-      }
-      if(board[y][x-1] === 0 || Math.floor(board[y][x-1]/10) !== Math.floor(piece/10)){
-        list.push(String(y)+(x-1));
-      }
-      if(board[y-1] && (board[y-1][x+1] === 0 || Math.floor(board[y-1][x+1]/10) !== Math.floor(piece/10))){
-        list.push(String(y-1)+(x+1));
-      }
-      if(board[y-1] && (board[y-1][x] === 0 || Math.floor(board[y-1][x]/10) !== Math.floor(piece/10))){
-        list.push(String(y-1)+(x));
-      }
-      if(board[y-1] && (board[y-1][x-1] === 0 || Math.floor(board[y-1][x-1]/10) !== Math.floor(piece/10))){
-        list.push(String(y-1)+(x-1));
-      }
-      if(piece === 16){
-        if(board[7][5] === 0 && board[7][6] === 0 && this.state.castleR){
-          list.push('76');
-        }
-        if(board[7][3] === 0 && board[7][2] === 0 && board[7][1] === 0 && this.state.castleL){
-          list.push('72');
-        }
-      } else if(piece === 26){
-        if(board[0][5] === 0 && board[0][6] === 0 && this.state.castleBR){
-          list.push('06');
-        }
-        if(board[0][3] === 0 && board[0][2] === 0 && board[0][1] === 0 && this.state.castleBL){
-          list.push('02');
-        }
-      }
-
-    }
-    if(!cb){
-      this.setState({
-        moves: list
-      })
-    }
-    return list;
-  }
-
-
   changeSelected(y, x){
-    console.log('pre changed');
-    if(this.props.color + 1 === this.state.turn){
-      console.log('changed');
-      //console.log(this.state.check);
-      //console.log('piece, turn',this.state.board[y][x],this.state.turn);
-      if(Math.floor(this.state.board[y][x]/10) === 1){
-        this.setState({
-          selected: ''+y+x
-        })
-        this.calculateMoves(y,x)
+    if(this.props.color === this.state.turn){
+      if(this.props.color === 0) {
+        if(Math.floor(this.state.board[y][x]/10) === 1){
+          this.setState({
+            selected: ''+y+x
+          });
+          calculateMoves.call(this,y,x);
+        }
+      } else {
+        if(Math.floor(this.state.board[y][x]/10) === 2){
+          this.setState({
+            selected: ''+y+x
+          });
+          calculateMoves.call(this,y,x);
+        }
       }
     }
   }
-
-  checkCheck(board){
-    if(!board){
-      board = this.state.board;
-    }
-    //console.log(board);
-    var moveList = [];
-    var black;
-    var white;
-    for(var i = 0; i < 8; i++){
-      for(var j = 0; j < 8; j++){
-        if(board[i][j] === 16){
-          white = ''+i+j;
-        }
-        if(board[i][j] === 26){
-          black = ''+i+j;
-        }
-        if(board[i][j] !== 0){
-          moveList = moveList.concat(this.calculateMoves(i,j,1, board));
-        }
-      }
-    }
-    //console.log(moveList);
-    if(this.state.turn === 1){
-      if(moveList.includes(white)){
-        console.log('white');
-        return 1;
-      }
-    } else {
-      if(moveList.includes(black)){
-        console.log('black');
-        return 1;
-      }
-    }
-    console.log('none');
-    return 0;
-  }
-
 
   render(){
-    console.log(this.props);
     return (
       <div style={{lineHeight: '0px'}}>
         {

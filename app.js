@@ -24,16 +24,16 @@ app.post('/newGame', function(req, res){
     white: white,
     black: black,
     board: [
-      [24, 23, 22, 26, 25, 22, 23, 24],
+      [24, 23, 22, 25, 26, 22, 23, 24],
       [21, 21, 21, 21, 21, 21, 21, 21],
       [0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0],
       [11, 11, 11, 11, 11, 11, 11, 11],
-      [14, 13, 12, 16, 15, 12, 13, 14],
+      [14, 13, 12, 15, 16, 12, 13, 14],
     ],
-    turn: 1
+    turn: 0
   }
   games.push(game);
   var data = {
@@ -69,9 +69,9 @@ app.post('/makeMove', function(req, res){
   if(req.body.color === 1){
     for(var i = 0; i < req.body.moves.length; i++){
       var piece = req.body.moves[i][2]
-      if(Math.floor(req.body.moves[i][2]/10) === 1){
-        piece = req.body.moves[i][2] + 10;
-      }
+      // if(Math.floor(req.body.moves[i][2]/10) === 1){
+      //   piece = req.body.moves[i][2] + 10;
+      // }
       newMoves.push([7-req.body.moves[i][0], 7-req.body.moves[i][1], piece])
     }
   } else{
@@ -84,7 +84,7 @@ app.post('/makeMove', function(req, res){
   for(var i = 0; i < newMoves.length; i++){
     games[req.body.game].board[newMoves[i][0]][newMoves[i][1]] = newMoves[i][2];
   }
-  games[req.body.game].turn = games[req.body.game].turn === 1 ? 2 : 1;
+  games[req.body.game].turn = games[req.body.game].turn === 0 ? 1 : 0;
 
   console.log(games[req.body.game].board);
   res.send();

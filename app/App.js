@@ -18,7 +18,6 @@ class App extends React.Component{
     var that = this;
     setInterval(() => {
       axios.get('/getGames').then((res) => {
-        //console.log(res.data);
         that.setState({
           games: res.data
         })
@@ -27,10 +26,8 @@ class App extends React.Component{
   }
 
   makeGame(){
-    //console.log('here');
     var that = this;
     axios.post('/newGame').then(function(response){
-      //console.log(response.data);
       that.setState({
         game: response.data.gameNum,
         color: response.data.color
@@ -40,9 +37,7 @@ class App extends React.Component{
 
   joinGame(i){
     var that = this;
-    //console.log(i);
     axios.post('/joinGame', {gameNum: i}).then(function(response){
-      //console.log(response.data);
       if(response.data.able){
         that.setState({
           game: response.data.gameNum,
@@ -53,7 +48,6 @@ class App extends React.Component{
   }
 
   render(){
-    //console.log('kalsdbfladsbfljahdsbfljasfvjahsdfaf');
     return (
       <div>
         {this.state.game ? <Board game={this.state.game} color={this.state.color}/> :  <Landing games={this.state.games} makeGame={this.makeGame.bind(this)} joinGame={this.joinGame.bind(this)}/>}

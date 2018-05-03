@@ -41,32 +41,31 @@ class BoardTile extends React.Component{
       25: 'BQ.png',
       26: 'BK.png',
     }
-    //console.log('wtf m8',this.props.color);
-    if(this.props.color === 1){
-      pieces = {
-        0: 'O.png',
-        11: 'BP.png',
-        12: 'BB.png',
-        13: 'BH.png',
-        14: 'BR.png',
-        15: 'BQ.png',
-        16: 'BK.png',
-        21: 'WP.png',
-        22: 'WB.png',
-        23: 'WH.png',
-        24: 'WR.png',
-        25: 'WQ.png',
-        26: 'WK.png',
-      }
-    }
+    // if(this.props.color === 1){
+    //   pieces = {
+    //     0: 'O.png',
+    //     11: 'BP.png',
+    //     12: 'BB.png',
+    //     13: 'BH.png',
+    //     14: 'BR.png',
+    //     15: 'BQ.png',
+    //     16: 'BK.png',
+    //     21: 'WP.png',
+    //     22: 'WB.png',
+    //     23: 'WH.png',
+    //     24: 'WR.png',
+    //     25: 'WQ.png',
+    //     26: 'WK.png',
+    //   }
+    // }
     var opac = this.props.tile === 0 ? 0 : 1;
     const COLOR = {
-      '0': 'hsl(24, 43%, 32%)',
-      '1': 'hsl(136, 100%, 32%)',
-      '01': 'hsl(24, 43%, 92%)',
-      '11': 'hsl(136, 100%, 92%)',
-      '0move': 'hsl(24, 43%, 62%)',
-      '1move': 'hsl(136, 100%, 62%)'
+      '1': 'hsl(24, 43%, 32%)',
+      '0': 'hsl(136, 100%, 32%)',
+      '11': 'hsl(24, 43%, 92%)',
+      '01': 'hsl(136, 100%, 92%)',
+      '1move': 'hsl(24, 43%, 62%)',
+      '0move': 'hsl(136, 100%, 62%)'
     }
     return (
       <div id="back"

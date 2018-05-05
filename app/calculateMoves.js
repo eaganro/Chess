@@ -1,4 +1,5 @@
 const calculateWhitePawnMoves = function(y, x, board, piece) {
+  let { enPassant } = this.state;
   const list = [];
   if (this.props.color === 0) {
     if(board[y-1][x] === 0){
@@ -12,6 +13,16 @@ const calculateWhitePawnMoves = function(y, x, board, piece) {
     }
     if(board[y-1] && board[y-1][x+1] !== 0 && Math.floor(board[y-1][x+1]/10) !== Math.floor(piece/10)){
       list.push(String(y-1) + (x+1));
+    }
+    console.log(enPassant);
+    if (Math.floor(enPassant/10) === 2) {
+      enPassant = 7 - (enPassant % 10);
+      if (y === 3 && x - enPassant === -1) {
+        list.push(String(y-1) + (x+1));
+      }
+      if (y === 3 && x - enPassant === 1) {
+        list.push(String(y-1) + (x-1));
+      }
     }
   } else {
     if(board[y+1][x] === 0){
@@ -30,6 +41,7 @@ const calculateWhitePawnMoves = function(y, x, board, piece) {
   return list;
 }
 const calculateBlackPawnMoves = function(y, x, board, piece) {
+  let { enPassant } = this.state;
   const list = [];
   if (this.props.color === 0) {
     if(board[y+1][x] === 0){
@@ -56,6 +68,15 @@ const calculateBlackPawnMoves = function(y, x, board, piece) {
     }
     if(board[y-1] && board[y-1][x+1] !== 0 && Math.floor(board[y-1][x+1]/10) !== Math.floor(piece/10)){
       list.push(String(y-1) + (x+1));
+    }
+    if (Math.floor(enPassant/10) === 1) {
+      enPassant = 7 - (enPassant % 10);
+      if (y === 3 && x - enPassant === -1) {
+        list.push(String(y-1) + (x+1));
+      }
+      if (y === 3 && x - enPassant === 1) {
+        list.push(String(y-1) + (x-1));
+      }
     }
   }
   return list;
@@ -225,11 +246,11 @@ const calculateKingMoves = function(y, x, board, piece) {
       list.push('72');
     }
   } else if(piece === 26){
-    if(board[0][5] === 0 && board[0][6] === 0 && this.state.castleBR){
-      list.push('06');
+    if(board[7][1] === 0 && board[7][2] === 0 && this.state.castleBL){
+      list.push('71');
     }
-    if(board[0][3] === 0 && board[0][2] === 0 && board[0][1] === 0 && this.state.castleBL){
-      list.push('02');
+    if(board[7][4] === 0 && board[7][5] === 0 && board[7][6] === 0 && this.state.castleBR){
+      list.push('75');
     }
   }
   return list;

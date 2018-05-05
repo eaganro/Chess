@@ -33,7 +33,8 @@ app.post('/newGame', function(req, res){
       [11, 11, 11, 11, 11, 11, 11, 11],
       [14, 13, 12, 15, 16, 12, 13, 14],
     ],
-    turn: 0
+    turn: 0,
+    enPassant: -100,
   }
   games.push(game);
   var data = {
@@ -85,6 +86,7 @@ app.post('/makeMove', function(req, res){
     games[req.body.game].board[newMoves[i][0]][newMoves[i][1]] = newMoves[i][2];
   }
   games[req.body.game].turn = games[req.body.game].turn === 0 ? 1 : 0;
+  games[req.body.game].enPassant = req.body.enPassant;
 
   console.log(games[req.body.game].board);
   res.send();
@@ -92,11 +94,14 @@ app.post('/makeMove', function(req, res){
 
 app.post('/getState', function(req, res){
   console.log(req.body);
+  console.log(games[req.body.game].enPassant);
   var board = games[req.body.game].board;
   var turn = games[req.body.game].turn;
+  let enPassant = games[req.body.game].enPassant;
   var data = {
-    board: board,
-    turn: turn,
+    board,
+    turn,
+    enPassant,
   }
   res.send(data);
 })

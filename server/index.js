@@ -1,15 +1,26 @@
 var express = require('express')
 var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+// var io = require('socket.io')(server);
 var parser = require('body-parser');
+// var mysql = require('mysql');
 
-server.listen(8081);
+// var connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   database: 'chess',
+// });
+
+// connection.connect();
+
 
 app.use(parser.json());
-app.use(express.static(__dirname + '/public/'));
+app.use(express.static(__dirname + '/../public/'));
 
 var games = [{}];
+
+app.post('/signUp', (req, res) => {
+
+});
 
 app.post('/newGame', function(req, res){
   console.log('server');
@@ -70,16 +81,9 @@ app.post('/makeMove', function(req, res){
   if(req.body.color === 1){
     for(var i = 0; i < req.body.moves.length; i++){
       var piece = req.body.moves[i][2]
-      // if(Math.floor(req.body.moves[i][2]/10) === 1){
-      //   piece = req.body.moves[i][2] + 10;
-      // }
       newMoves.push([7-req.body.moves[i][0], 7-req.body.moves[i][1], piece])
     }
   } else{
-    // for(var i = 0; i < req.body.moves.length; i++){
-    //   var piece = req.body.moves[i][2]
-    //   newMoves.push([req.body.moves[i][0], 7-req.body.moves[i][1], piece])
-    // }
     newMoves = req.body.moves;
   }
   for(var i = 0; i < newMoves.length; i++){
@@ -87,14 +91,10 @@ app.post('/makeMove', function(req, res){
   }
   games[req.body.game].turn = games[req.body.game].turn === 0 ? 1 : 0;
   games[req.body.game].enPassant = req.body.enPassant;
-
-  console.log(games[req.body.game].board);
   res.send();
 })
 
 app.post('/getState', function(req, res){
-  console.log(req.body);
-  console.log(games[req.body.game].enPassant);
   var board = games[req.body.game].board;
   var turn = games[req.body.game].turn;
   let enPassant = games[req.body.game].enPassant;
@@ -108,10 +108,8 @@ app.post('/getState', function(req, res){
 
 app.get('/getGames', function(req, res){
   res.send(200, games.length-1);
-})
+});
 
-
-
-// app.get('/', function(req, res){
-//   res.sendFile(__dirname + '/public/index.html');
-// })
+app.listen(8081, () => {
+  console.log('listening on port 8081');
+});

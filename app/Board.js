@@ -1,6 +1,7 @@
 import React from 'react';
-import BoardRow from './BoardRow.js';
 import axios from 'axios';
+import BoardRow from './BoardRow.js';
+import Promote from './Promote.js';
 
 import { calculateMoves, checkCheck } from './boardHelpers';
 
@@ -10,16 +11,27 @@ class Board extends React.Component{
     super(props);
 
     this.state = {
-      board: [
-        [24, 23, 22, 25, 26, 22, 23, 24],
-        [21, 21, 21, 21, 21, 21, 21, 21],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [11, 11, 11, 11, 11, 11, 11, 11],
-        [14, 13, 12, 15, 16, 12, 13, 14],
-      ],
+      board: this.props.color === 0 ?
+        [
+          [24, 23, 22, 25, 26, 22, 23, 24],
+          [21, 21, 21, 21, 21, 21, 21, 21],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [11, 11, 11, 11, 11, 11, 11, 11],
+          [14, 13, 12, 15, 16, 12, 13, 14],
+        ] :
+        [
+          [14, 13, 12, 16, 15, 12, 13, 14],
+          [11, 11, 11, 11, 11, 11, 11, 11],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0],
+          [21, 21, 21, 21, 21, 21, 21, 21],
+          [24, 23, 22, 26, 25, 22, 23, 24],
+        ],
       selected: -1,
       moves: [],
       castleR: 1,
@@ -28,6 +40,7 @@ class Board extends React.Component{
       castleBL: 1,
       turn: 0,
       check: 0,
+      promote: 0,
       enPassant: -100,
     }
     this.update();
@@ -238,6 +251,10 @@ class Board extends React.Component{
   render(){
     return (
       <div style={{lineHeight: '0px'}}>
+        {this.state.promote !== 0 ?
+          <Promote /> :
+          ''
+        }
         {
           [...Array(8)].map((x,i) => <BoardRow color={this.props.color} move={this.movePiece.bind(this)} moves={this.state.moves} selected={this.state.selected} select={this.changeSelected.bind(this)} i={i} row={this.state.board[i]} key={i}/>)
         }
